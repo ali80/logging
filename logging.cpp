@@ -1,6 +1,6 @@
 #include <logging.h>
 
-#if !defined(ESP32)
+#if !defined(ESP32) && !defined(ESP8266)
 #include <stdio.h>
 #include <stdlib.h>
 #else
