@@ -1,6 +1,11 @@
 #ifndef __LOGGING_H
 #define __LOGGING_H
 
+#define LOG_DEST_ALL
+// #define LOG_DEST_SERIAL
+// #define LOG_DEST_FLASH
+// #define LOG_DEST_RAM
+
 #ifndef LOG_LEVEL
 #define LOG_LEVEL 5 // 0:off, 1:error, 2:warning, 3: info, 4: debug, 5:verbose
 #endif
@@ -66,5 +71,22 @@ int log_printf1(const char* format, ...);
 #define log_st(level, format, ...)                                                                                     \
     if (level <= LOG_LEVEL)                                                                                            \
     log_printf(_LOG_FORMAT_SHORT_WITHTIME(level, format), ##__VA_ARGS__)
+
+/// custom log, log to serial, flash or ram
+#if defined(LOG_DEST_FLASH)
+#define log_c(level, format, ...)                                                                                      \
+    if (level <= LOGFILE_LEVEL)                                                                                        \
+    log_fs(level, "/log.txt", format, ##__VA_ARGS__)
+#elif defined(LOG_DEST_SERIAL)
+#define log_c(level, format, ...)                                                                                      \
+    if (level <= LOG_LEVEL)                                                                                            \
+        log_s(level, format, ##__VA_ARGS__);
+#elif defined(LOG_DEST_ALL)
+#define log_c(level, format, ...)                                                                                      \
+    if (level <= LOG_LEVEL)                                                                                            \
+        log_s(level, format, ##__VA_ARGS__);                                                                           \
+    log_fs(level, "/log.txt", format, ##__VA_ARGS__)
+
+#endif
 
 #endif //__LOGGING_H

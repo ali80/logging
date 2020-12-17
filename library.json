@@ -1,0 +1,20 @@
+{
+    "name": "logging",
+    "version": "0.0.2",
+    "description": "lib to help log to disk or serial output",
+    "keywords": "logging, esp8266, esp32, arduino",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ali80/logging.git"
+    },
+    "authors": [
+        {
+            "name": "ali80",
+            "maintainer": true
+        }
+    ],
+    "license": "MIT",
+    "dependencies": {},
+    "frameworks": "*",
+    "platforms": "*"
+}

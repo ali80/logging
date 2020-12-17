@@ -50,7 +50,7 @@ const char* _getFileName(const char* path)
 }
 
 #if defined(ESP32) || defined(ESP8266)
-/// log to fle
+/// log to file
 int log_f_raw(const char* filePath, const char* format, ...)
 {
     uint32_t now = millis();
