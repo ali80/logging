@@ -1,6 +1,6 @@
 {
     "name": "logging",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "lib to help log to disk or serial output",
     "keywords": "logging, esp8266, esp32, arduino",
     "repository": {
