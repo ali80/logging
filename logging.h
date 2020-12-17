@@ -16,11 +16,11 @@
 
 const char* _getFileName(const char* path);
 #define _LOG_FORMAT(letter, format)                                                                                    \
-    "[" #letter "][%s:%u] %s(): " format "\n", _getFileName(__FILE__), __LINE__, __FUNCTION__
+    "[" #letter "][%s:%u] %s()" format "\n", _getFileName(__FILE__), __LINE__, __FUNCTION__
 
-#define _LOG_FORMAT_SHORT(letter, format) "[" #letter "]: " format "\n"
+#define _LOG_FORMAT_SHORT(letter, format) "[" #letter "]" format "\n"
 
-#define _LOG_FORMAT_SHORT_WITHTIME(letter, format) "%010u [" #letter "]: " format "\n", millis()
+#define _LOG_FORMAT_SHORT_WITHTIME(letter, format) "%010lu [" #letter "]" format "\n", millis()
 
 int log_f_raw(const char* filePath, const char* format, ...);
 
@@ -33,7 +33,16 @@ int log_f_raw(const char* filePath, const char* format, ...);
 
 #define LOG_FS SPIFFS
 #elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <LittleFS.h>
 
+#ifndef LOG_FS_FILE_SIZE_MAX
+#define LOG_FS_FILE_SIZE_MAX 20000
+#endif
+
+#define LOG_FS LittleFS
+// #define log_printf(format, ...) printf(format, ##__VA_ARGS__)
+#define log_printf(format, ...) printf_P(PSTR(format), ##__VA_ARGS__)
 #else
 #include <stdarg.h>
 #define write_log(priority, format, args...)                                                                           \
@@ -44,8 +53,13 @@ int log_f_raw(const char* filePath, const char* format, ...);
 int log_printf1(const char* format, ...);
 #define log_i(format, ...) log_printf1(format, ##__VA_ARGS__)
 #define log_e(format, ...) log_printf1(format, ##__VA_ARGS__)
-#define log_printf printf
+#define log_printf printf(format, #__VA_ARGS__)
 #endif
+
+/// raw log
+#define log_raw(level, format, ...)                                                                                    \
+    if (level <= LOG_LEVEL)                                                                                            \
+    log_printf(format, ##__VA_ARGS__)
 
 /// long log
 #define log_l(level, format, ...)                                                                                      \
@@ -57,20 +71,22 @@ int log_printf1(const char* format, ...);
     if (level <= LOG_LEVEL)                                                                                            \
     log_printf(_LOG_FORMAT_SHORT(level, format), ##__VA_ARGS__)
 
-/// log to file
+/// log to file long
 #define log_fl(level, filePath, format, ...)                                                                           \
     if (level <= LOGFILE_LEVEL)                                                                                        \
     log_f_raw(filePath, _LOG_FORMAT(level, format), ##__VA_ARGS__)
 
-/// log to file
+/// log to file short
 #define log_fs(level, filePath, format, ...)                                                                           \
     if (level <= LOGFILE_LEVEL)                                                                                        \
     log_f_raw(filePath, _LOG_FORMAT_SHORT(level, format), ##__VA_ARGS__)
 
 /// short log with time tag
 #define log_st(level, format, ...)                                                                                     \
-    if (level <= LOG_LEVEL)                                                                                            \
-    log_printf(_LOG_FORMAT_SHORT_WITHTIME(level, format), ##__VA_ARGS__)
+    if (level <= LOG_LEVEL) {                                                                                          \
+        log_raw(level, "%lu ", millis());                                                                              \
+        log_printf(_LOG_FORMAT_SHORT(level, format), ##__VA_ARGS__);                                                   \
+    }
 
 /// custom log, log to serial, flash or ram
 #if defined(LOG_DEST_FLASH)
